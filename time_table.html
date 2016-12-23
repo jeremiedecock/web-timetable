@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+
+        <meta name="author" content="Jérémie DECOCK" />
+        <meta name="copyright" content="copyright (c) 2016 Jérémie DECOCK" />
+
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <style type="text/css">
+* {
+    color: #666666;
+}
+
+body {
+    background-color: #f4f4f4;
+}
+
+#clock {
+    background-color: #fff;
+
+    font-weight: bold;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    text-align: center;
+
+    width: 24em;
+}
+
+#timetable {
+    background-color: #fff;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    margin-top: 1em;
+    margin-bottom: 0em;
+
+    width: 24em;
+}
+        </style>
+    </head>
+
+    <body>
+
+        <div id="clock"></div>
+
+        <table id="timetable">
+            <thead>
+                <tr>
+                    <th>Stop</th>
+                    <th>Time</th>
+                    <th>Next Time</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <script>
+
+time_table = {
+    "am": {
+        "06C": [
+            [ 6,  0],
+            [ 6, 20],
+            [ 6, 35],
+            [ 6, 50],
+            [10, 15],
+            [10, 35],
+            [11, 15],
+            [11, 25],
+            [12, 15],
+            [12, 35],
+        ],
+        "Guichet": [
+            [ 6, 15],
+            [ 6, 35],
+            [ 6, 55],
+            [ 7,  5],
+            [ 7, 20],
+            [ 7, 35],
+            [ 7, 45],
+            [ 7, 55],
+            [ 8,  5],
+            [ 8, 15],
+            [ 8, 25],
+            [ 8, 40],
+            [ 8, 50],
+            [ 9,  0],
+            [ 9, 10],
+            [ 9, 20],
+            [ 9, 35],
+            [ 9, 50],
+            [10,  5],
+            [10, 20],
+            [10, 35],
+            [10, 55],
+            [11, 10],
+            [11, 43],
+            [11, 50],
+            [12, 10],
+            [12, 43],
+        ]
+    },
+    "pm": {
+        "06C": [
+            [15, 40],
+            [15, 50],
+            [15, 55],
+        ],
+        // TODO
+    }
+};
+
+function display_clock() {
+    var now = new Date();
+    $("div#clock").html(now.toLocaleTimeString());
+    setTimeout(display_clock, 1000);  // Call the function in one second
+}
+
+function display_time_table() {
+    var now = new Date();
+
+    if(now.getHours() < 13) {
+        direction = "am";
+    } else {
+        direction = "pm";
+    }
+
+    // Clear the table
+    $("table#timetable tbody").empty();
+
+    // Get the current time
+    var now = new Date();          // The current time
+    var row_date = new Date(now);  // The time to compare to now
+
+    // Fill the table
+    stop_list = Object.keys(time_table[direction]);
+    for(var stop_index=0 ; stop_index < stop_list.length ; stop_index++) {
+        stop_name = stop_list[stop_index];
+        stop_time = " - ";
+        next_stop_time = " - ";
+
+        for(var time_index=time_table[direction][stop_name].length - 1 ; time_index >= 0 ; time_index--) {
+            row_date.setHours(time_table[direction][stop_name][time_index][0]);
+            row_date.setMinutes(time_table[direction][stop_name][time_index][1]);
+
+            if(now <= row_date) {
+                dt_minutes = (row_date.getTime() - now.getTime()) / 60000;
+                stop_time = " " + Math.floor(dt_minutes / 60) + "h " + (dt_minutes % 60) + "min";
+
+                if(time_index < time_table[direction][stop_name].length - 1) {  // If the current row is not the last one
+                    row_date.setHours(time_table[direction][stop_name][time_index + 1][0]);
+                    row_date.setMinutes(time_table[direction][stop_name][time_index + 1][1]);
+
+                    dt_minutes = (row_date.getTime() - now.getTime()) / 60000;
+                    next_stop_time = " " + Math.floor(dt_minutes / 60) + "h " + (dt_minutes % 60) + "min";
+                }
+            }
+        }
+
+        row_str = "<tr><td>" + stop_name + "</td><td>" + stop_time + "</td><td>" + next_stop_time + "</td></tr>";
+        $("table#timetable > tbody:last-child").append(row_str);
+    }
+
+    setTimeout(display_time_table, 60000); // Call the function in one minute
+}
+
+// On document load
+$(function() {
+    display_clock();
+    display_time_table();
+});
+
+        </script>
+
+    </body>
+</html>
