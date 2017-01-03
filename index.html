@@ -106,13 +106,45 @@ time_table = {
             [11, 50],
             [12, 10],
             [12, 43],
-        ]
+        ],
     },
     "pm": {
         "06C": [
+            [14, 43],
+            [15, 13],
+            [15, 33],
             [15, 40],
             [15, 50],
             [15, 55],
+        ],
+        "Guichet": [
+            [14, 28],
+            [14, 38],
+            [15,  3],
+            [15, 23],
+            [15, 38],
+            [16,  3],
+            [16, 20],
+            [16, 30],
+            [16, 40],
+            [16, 50],
+            [17,  0],
+            [17, 10],
+            [17, 20],
+            [17, 30],
+            [17, 40],
+            [17, 50],
+            [18,  0],
+            [18, 10],
+            [18, 20],
+            [18, 30],
+            [18, 40],
+            [18, 56],
+            [19, 11],
+            [19, 30],
+            [19, 46],
+            [20, 10],
+            [20, 30],
         ],
         // TODO
     }
@@ -140,13 +172,16 @@ function display_time_table() {
     var now = new Date();          // The current time
     var row_date = new Date(now);  // The time to compare to now
 
-    // Fill the table
+    // Fill the table ///////////////////////////
     stop_list = Object.keys(time_table[direction]);
+
+    // For all stops
     for(var stop_index=0 ; stop_index < stop_list.length ; stop_index++) {
         stop_name = stop_list[stop_index];
         stop_time = " - ";
         next_stop_time = " - ";
 
+        // For all time stop
         for(var time_index=time_table[direction][stop_name].length - 1 ; time_index >= 0 ; time_index--) {
             row_date.setHours(time_table[direction][stop_name][time_index][0]);
             row_date.setMinutes(time_table[direction][stop_name][time_index][1]);
@@ -162,6 +197,15 @@ function display_time_table() {
                     dt_minutes = (row_date.getTime() - now.getTime()) / 60000;
                     next_stop_time = " " + Math.floor(dt_minutes / 60) + "h " + (dt_minutes % 60) + "min";
                 }
+            }
+        }
+
+        // Special rule for 06C line
+        if(stop_name == "06C") {
+            if(now.getHours() >= 7 && now.getHours() < 10) {          // TODO
+                stop_time = " <5 min";
+            } else if(now.getHours() >= 16 && now.getHours() < 19) {  // TODO
+                stop_time = " <5 min";
             }
         }
 
